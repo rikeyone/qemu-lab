@@ -9,5 +9,5 @@ obj-y += config_info.o
 $(obj)/config_info.o: FORCE fs/proc/info/config_info.h
 
 fs/proc/info/config_info.h: FORCE
-	$(Q)$(CONFIG_SHELL) fs/proc/info/mkconfiginfo $(objtree) $@
+	$(Q)$(CONFIG_SHELL) $(srctree)/fs/proc/info/mkconfiginfo $(objtree) $@
 
