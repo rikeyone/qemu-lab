@@ -13,6 +13,7 @@
 #include <linux/kernel.h>
 #include <linux/module.h>
 #include <linux/kprobes.h>
+#include <linux/sched.h>
 
 /* For each probe you need to allocate a kprobe structure */
 static struct kprobe kp = {
@@ -42,6 +43,9 @@ static int handler_pre(struct kprobe *p, struct pt_regs *regs)
 			" ex1 = 0x%lx\n",
 		p->addr, regs->pc, regs->ex1);
 #endif
+#ifdef CONFIG_ARM
+	pr_err("<%s> pre_handler: p->addr = 0x%p \n", p->symbol_name, p->addr);
+#endif
 
 	/* A dump_stack() here will give a stack backtrace */
 	return 0;
@@ -66,6 +70,14 @@ static void handler_post(struct kprobe *p, struct pt_regs *regs,
 #ifdef CONFIG_TILEGX
 	printk(KERN_INFO "post_handler: p->addr = 0x%p, ex1 = 0x%lx\n",
 		p->addr, regs->ex1);
+#endif
+#ifdef CONFIG_ARM
+	struct task_struct *task;
+	read_lock(&tasklist_lock);
+	for_each_process(task) {
+		printk("pid =%x\n", task->pid);
+	}
+	read_unlock(&tasklist_lock);
 #endif
 }
 
