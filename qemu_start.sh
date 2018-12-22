@@ -9,7 +9,7 @@ fi
 if [ "${arch}" = "arm" ];then
 	qemu-system-arm -M vexpress-a9 \
 		-smp 4 \
-		-m 1024m \
+		-m 1024M \
 		-kernel linux-4.0/arch/arm/boot/zImage \
 		-append "rdinit=/linuxrc console=ttyAMA0 loglevel=8" \
 		-dtb linux-4.0/arch/arm/boot/dts/vexpress-v2p-ca9.dtb \
