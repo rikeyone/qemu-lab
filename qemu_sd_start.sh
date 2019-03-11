@@ -8,11 +8,15 @@ if [ "${arch}" = "" ];then
 	arch=arm64
 fi
 
-# generate cpio initramfs
-cd rootfs/${arch}/_install
-find . | cpio -H newc -ov --owner root:root > ../initramfs.cpio
-cd ../
-gzip initramfs.cpio
+# generate rootfs.ext3
+cd rootfs/${arch}
+mkdir -p sdcard
+sudo dd if=/dev/zero of=rootfs.ext3 bs=1M count=50
+sudo mkfs.ext3 rootfs.ext3
+sudo mount -t ext3 rootfs.ext3 sdcard -o loop
+sudo cp _install/* sdcard/ -fra
+sudo umount sdcard/
+sudo chmod 666 rootfs.ext3
 
 cd ${ROOTDIR}
 
@@ -21,9 +25,9 @@ if [ "${arch}" = "arm" ];then
 		-smp 4 \
 		-m 1024m \
 		-kernel linux-4.0/arch/arm/boot/zImage \
-		-append "rdinit=/linuxrc console=ttyAMA0 loglevel=8" \
+		-append "root=/dev/mmcblk0 rw console=ttyAMA0 loglevel=8" \
 		-dtb linux-4.0/arch/arm/boot/dts/vexpress-v2p-ca9.dtb \
-		-initrd rootfs/${arch}/initramfs.cpio.gz \
+		-sd rootfs/${arch}/rootfs.ext3 \
 		-nographic
 else
 	qemu-system-aarch64 -machine virt \
@@ -32,6 +36,6 @@ else
 		-nographic -m 2048 \
 		-smp 2 \
 		-kernel linux-4.0/arch/arm64/boot/Image \
-		-append "rdinit=/linuxrc console=ttyAMA0 loglevel=8  trace_event=sched:*,timer:*,irq:* trace_buf_size=40M" \
-		-initrd rootfs/${arch}/initramfs.cpio.gz
+		-append "root=/dev/mmcblk0 rw console=ttyAMA0 loglevel=8  trace_event=sched:*,timer:*,irq:* trace_buf_size=40M" \
+		-sd rootfs/${arch}/rootfs.ext3
 fi
