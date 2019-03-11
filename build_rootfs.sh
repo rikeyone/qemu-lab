@@ -12,9 +12,9 @@ fi
 echo current dir:`pwd`
 
 if [ "$PLATFORM" = "arm64" ]; then
-	cd rootfs/_install_arm64
+	cd rootfs/arm64/_install
 else
-	cd rootfs/_install
+	cd rootfs/arm/_install
 fi
 
 
